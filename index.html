@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GDG Xavier Ateneo — Sands of Time</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#120912;
+    --ink-2:#1c0f1f;
+    --sand:#e8b778;
+    --amber:#ff6b35;
+    --magenta:#ff3d7f;
+    --cream:#fff3e0;
+    --teal:#173b3e;
+    --grain: rgba(232,183,120,0.55);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html,body{
+    height:100%;
+    background:var(--ink);
+    color:var(--cream);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important;}
+  }
+
+  /* ---------- background video / fallback ---------- */
+  #bgvideo{
+    position:fixed; inset:0; width:100%; height:100%;
+    object-fit:cover; z-index:0; opacity:0.28; filter:saturate(1.2) contrast(1.05);
+  }
+  #bgfallback{
+    position:fixed; inset:0; z-index:0;
+    background:
+      radial-gradient(ellipse at 20% 15%, rgba(255,107,53,0.35), transparent 55%),
+      radial-gradient(ellipse at 80% 85%, rgba(255,61,127,0.30), transparent 55%),
+      radial-gradient(ellipse at 50% 50%, rgba(232,183,120,0.12), transparent 60%),
+      var(--ink);
+  }
+  .grain-overlay{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    opacity:0.5;
+  }
+
+  /* ---------- scroll container ---------- */
+  #story{
+    position:relative; z-index:2;
+    height:100vh; overflow-y:scroll; overflow-x:hidden;
+    scroll-snap-type:y mandatory;
+  }
+  .card{
+    position:relative;
+    height:100vh; width:100%;
+    scroll-snap-align:start;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:8vh 6vw;
+    text-align:center;
+  }
+
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:0.25em;
+    text-transform:uppercase;
+    font-size:clamp(11px,1.6vw,13px);
+    color:var(--sand);
+    opacity:0.85;
+    margin-bottom:1.4rem;
+  }
+  .eyebrow::before{content:"◆ ";}
+
+  h1.big{
+    font-family:'Unbounded',sans-serif;
+    font-weight:900;
+    line-height:0.92;
+    font-size:clamp(2.6rem,9vw,6.2rem);
+    letter-spacing:-0.01em;
+    background:linear-gradient(100deg,var(--sand) 0%, var(--amber) 45%, var(--magenta) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-bottom:1.2rem;
+  }
+  .sub{
+    font-size:clamp(1rem,2.2vw,1.25rem);
+    color:var(--cream);
+    opacity:0.85;
+    max-width:36ch;
+    line-height:1.5;
+  }
+  .sub b{color:var(--sand); font-weight:600;}
+
+  /* ---------- hourglass signature ---------- */
+  .hourglass{
+    position:relative;
+    width:min(30vw,150px); height:min(30vw,150px);
+    margin-bottom:3rem;
+  }
+  .hourglass svg{width:100%; height:100%; display:block;}
+  .grain{
+    position:absolute; left:50%; top:48%;
+    width:3px; height:3px; border-radius:50%;
+    background:var(--sand);
+    opacity:0;
+    animation:fall 1.6s linear infinite;
+  }
+  .grain:nth-child(1){animation-delay:0s;  left:49%;}
+  .grain:nth-child(2){animation-delay:.35s; left:51%;}
+  .grain:nth-child(3){animation-delay:.7s;  left:50%;}
+  .grain:nth-child(4){animation-delay:1.05s;left:48.5%;}
+  @keyframes fall{
+    0%{ top:44%; opacity:0; transform:scale(0.6);}
+    8%{ opacity:1; transform:scale(1);}
+    55%{ top:52%; opacity:1;}
+    62%{ opacity:0;}
+    100%{ top:52%; opacity:0;}
+  }
+
+  /* ---------- stat card ---------- */
+  .stat-row{
+    display:flex; flex-direction:column; gap:0.6rem;
+    margin-bottom:2.4rem;
+  }
+  .stat-line{
+    font-family:'JetBrains Mono',monospace;
+    font-size:clamp(1rem,3vw,1.4rem);
+    color:var(--cream); opacity:0.75;
+  }
+  .stat-line strong{
+    color:var(--sand); font-weight:500;
+  }
+  .huge-q{
+    font-family:'Unbounded',sans-serif;
+    font-weight:800;
+    font-size:clamp(3rem,14vw,8rem);
+    line-height:0.9;
+    color:var(--amber);
+    margin:0.4rem 0 1.6rem;
+  }
+
+  /* ---------- countdown card ---------- */
+  .countdown{
+    display:flex; gap:clamp(0.6rem,2.5vw,1.6rem);
+    margin:2rem 0 2.4rem;
+    flex-wrap:wrap; justify-content:center;
+  }
+  .cbox{
+    background:rgba(255,243,224,0.06);
+    border:1px solid rgba(232,183,120,0.35);
+    border-radius:14px;
+    padding:1rem clamp(0.9rem,3vw,1.6rem);
+    min-width:76px;
+  }
+  .cbox .n{
+    font-family:'Unbounded',sans-serif; font-weight:800;
+    font-size:clamp(1.8rem,5vw,2.6rem);
+    color:var(--sand); display:block;
+  }
+  .cbox .l{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; letter-spacing:0.15em; text-transform:uppercase;
+    opacity:0.65;
+  }
+
+  /* ---------- CTA card ---------- */
+  .cta-links{
+    display:flex; flex-direction:column; gap:0.9rem;
+    margin-top:2rem; width:100%; max-width:340px;
+  }
+  .cta-btn{
+    font-family:'Inter',sans-serif; font-weight:600; font-size:0.98rem;
+    color:var(--ink); background:linear-gradient(100deg,var(--sand),var(--amber));
+    border:none; border-radius:999px;
+    padding:0.95rem 1.4rem;
+    text-decoration:none;
+    letter-spacing:0.01em;
+    transition:transform .2s ease, box-shadow .2s ease;
+    box-shadow:0 8px 24px rgba(255,107,53,0.25);
+  }
+  .cta-btn:hover{transform:translateY(-2px); box-shadow:0 12px 30px rgba(255,107,53,0.35);}
+  .cta-btn.ghost{
+    background:transparent; color:var(--cream);
+    border:1px solid rgba(255,243,224,0.35);
+    box-shadow:none;
+  }
+  .cta-btn.ghost:hover{border-color:var(--sand); color:var(--sand);}
+
+  .wordmark{
+    position:fixed; top:2.2rem; left:50%; transform:translateX(-50%);
+    z-index:5;
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    letter-spacing:0.2em; text-transform:uppercase;
+    color:var(--cream); opacity:0.55;
+    pointer-events:none;
+  }
+
+  /* ---------- sound toggle ---------- */
+  #soundtoggle{
+    position:fixed; bottom:1.8rem; right:1.8rem; z-index:6;
+    width:52px; height:52px; border-radius:50%;
+    background:rgba(255,243,224,0.08);
+    border:1px solid rgba(232,183,120,0.4);
+    backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--sand);
+    font-size:1.15rem;
+    transition:background .2s ease, transform .2s ease;
+  }
+  #soundtoggle:hover{background:rgba(255,243,224,0.14); transform:scale(1.05);}
+
+  /* ---------- scroll hint ---------- */
+  .scrollhint{
+    position:absolute; bottom:2.4rem; left:50%; transform:translateX(-50%);
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    letter-spacing:0.15em; text-transform:uppercase;
+    color:var(--cream); opacity:0.5;
+    display:flex; flex-direction:column; align-items:center; gap:0.4rem;
+    animation:bob 2s ease-in-out infinite;
+  }
+  .scrollhint .arrow{font-size:14px;}
+  @keyframes bob{
+    0%,100%{transform:translate(-50%,0);}
+    50%{transform:translate(-50%,6px);}
+  }
+
+  .progress{
+    position:fixed; top:0; left:0; z-index:6;
+    height:3px; background:linear-gradient(90deg,var(--sand),var(--amber),var(--magenta));
+    width:0%;
+    transition:width .1s linear;
+  }
+
+  footer.card small{
+    display:block; margin-top:2.6rem;
+    font-family:'JetBrains Mono',monospace; font-size:10.5px;
+    letter-spacing:0.1em; opacity:0.4;
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="wordmark">GDG on Campus · Xavier Ateneo</div>
+
+<!-- Drop a file named bg.mp4 next to this index.html to activate the animated background. -->
+<video id="bgvideo" autoplay muted loop playsinline poster="">
+  <source src="./bg.mp4" type="video/mp4">
+</video>
+<div id="bgfallback"></div>
+<div class="grain-overlay"></div>
+
+<button id="soundtoggle" aria-label="Toggle sound" title="Toggle sound">🔇</button>
+
+<div id="story">
+
+  <!-- CARD 1 — HERO -->
+  <section class="card">
+    <div class="hourglass">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M28 12 H72 L58 50 L72 88 H28 L42 50 Z" stroke="var(--sand)" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M34 18 H66 L55 50 L66 82 H34 L45 50 Z" fill="rgba(255,107,53,0.12)"/>
+      </svg>
+      <div class="grain"></div><div class="grain"></div><div class="grain"></div><div class="grain"></div>
+    </div>
+    <p class="eyebrow">GDG on Campus · Xavier Ateneo presents</p>
+    <h1 class="big">SANDS<br>OF TIME</h1>
+    <p class="sub">This year's org directory is being built, <b>one grain at a time.</b></p>
+    <div class="scrollhint"><span>scroll</span><span class="arrow">↓</span></div>
+  </section>
+
+  <!-- CARD 2 — STAT / PROBLEM -->
+  <section class="card">
+    <p class="eyebrow">the problem, in numbers</p>
+    <div class="stat-row">
+      <p class="stat-line">Student orgs on campus: <strong>a lot.</strong></p>
+      <p class="stat-line">Ways to find them right now: <strong>group chats & guesswork.</strong></p>
+    </div>
+    <h2 class="huge-q">?</h2>
+    <p class="sub">That's the gap we're closing — <b>one directory, every org, every event.</b></p>
+  </section>
+
+  <!-- CARD 3 — COUNTDOWN / REVEAL -->
+  <section class="card">
+    <p class="eyebrow">the drop</p>
+    <h1 class="big" style="font-size:clamp(2.2rem,7vw,4.2rem);">THE ORG<br>DIRECTORY</h1>
+    <p class="sub" style="margin-bottom:1rem;">Browse every org. See their story. Never miss their events.</p>
+    <div class="countdown" id="countdown">
+      <div class="cbox"><span class="n" id="cd-d">--</span><span class="l">days</span></div>
+      <div class="cbox"><span class="n" id="cd-h">--</span><span class="l">hrs</span></div>
+      <div class="cbox"><span class="n" id="cd-m">--</span><span class="l">min</span></div>
+      <div class="cbox"><span class="n" id="cd-s">--</span><span class="l">sec</span></div>
+    </div>
+    <p class="sub" style="opacity:0.55; font-size:0.85rem;">until the sand runs out</p>
+  </section>
+
+  <!-- CARD 4 — CTA -->
+  <footer class="card">
+    <p class="eyebrow">stay in the loop</p>
+    <h1 class="big" style="font-size:clamp(2.2rem,7vw,4rem);">TAP IN<br>FOR THE DROP</h1>
+    <p class="sub">Follow GDG Xavier Ateneo — we'll post the second it's live.</p>
+    <div class="cta-links">
+      <a class="cta-btn" href="https://instagram.com/" target="_blank" rel="noopener">Follow on Instagram</a>
+      <a class="cta-btn ghost" href="https://facebook.com/" target="_blank" rel="noopener">Follow on Facebook</a>
+    </div>
+    <small>Made with ❤️ by GDG on Campus · Xavier Ateneo</small>
+  </footer>
+
+</div>
+
+<script>
+  // ---- scroll progress bar ----
+  const story = document.getElementById('story');
+  const progress = document.getElementById('progress');
+  story.addEventListener('scroll', () => {
+    const max = story.scrollHeight - story.clientHeight;
+    const pct = max > 0 ? (story.scrollTop / max) * 100 : 0;
+    progress.style.width = pct + '%';
+  });
+
+  // ---- background video fallback if bg.mp4 missing ----
+  const video = document.getElementById('bgvideo');
+  const fallback = document.getElementById('bgfallback');
+  fallback.style.display = 'none';
+  video.addEventListener('error', () => {
+    video.style.display = 'none';
+    fallback.style.display = 'block';
+  }, true);
+
+  // ---- sound toggle: unmute the bg video on user gesture ----
+  const soundBtn = document.getElementById('soundtoggle');
+  let soundOn = false;
+  soundBtn.addEventListener('click', () => {
+    soundOn = !soundOn;
+    video.muted = !soundOn;
+    if (soundOn) {
+      video.play().catch(()=>{});
+      soundBtn.textContent = '🔊';
+    } else {
+      soundBtn.textContent = '🔇';
+    }
+  });
+
+  // ---- countdown: EDIT THIS DATE to your real launch date ----
+  const LAUNCH = new Date("2026-09-01T00:00:00+08:00").getTime();
+  function tick(){
+    const now = Date.now();
+    let diff = LAUNCH - now;
+    if (diff < 0) diff = 0;
+    const d = Math.floor(diff / (1000*60*60*24));
+    const h = Math.floor((diff / (1000*60*60)) % 24);
+    const m = Math.floor((diff / (1000*60)) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+    document.getElementById('cd-d').textContent = String(d).padStart(2,'0');
+    document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
+    document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
+    document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+  }
+  tick();
+  setInterval(tick, 1000);
+</script>
+
+</body>
+</html>
