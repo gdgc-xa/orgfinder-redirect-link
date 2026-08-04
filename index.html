@@ -250,13 +250,19 @@
 <div class="wordmark">GDG on Campus · Xavier Ateneo</div>
 
 <!-- Drop a file named bg.mp4 next to this index.html to activate the animated background. -->
+<!-- This video should be SILENT (no audio track, or just export it muted) — it's visuals only. -->
 <video id="bgvideo" autoplay muted loop playsinline poster="">
   <source src="./bg.mp4" type="video/mp4">
 </video>
 <div id="bgfallback"></div>
 <div class="grain-overlay"></div>
 
-<button id="soundtoggle" aria-label="Toggle sound" title="Toggle sound">🔇</button>
+<!-- Drop a file named bg.mp3 next to this index.html — this is what actually plays as the music. -->
+<audio id="bgaudio" loop preload="auto">
+  <source src="./bg.mp3" type="audio/mpeg">
+</audio>
+
+<button id="soundtoggle" aria-label="Toggle music" title="Toggle music">🔇</button>
 
 <div id="story">
 
@@ -333,19 +339,26 @@
     fallback.style.display = 'block';
   }, true);
 
-  // ---- sound toggle: unmute the bg video on user gesture ----
+  // ---- sound toggle: play/pause the bg.mp3 track on user gesture ----
+  // (browsers block autoplaying audio with sound until the user interacts — that's why it starts off)
+  const audio = document.getElementById('bgaudio');
   const soundBtn = document.getElementById('soundtoggle');
   let soundOn = false;
   soundBtn.addEventListener('click', () => {
     soundOn = !soundOn;
-    video.muted = !soundOn;
     if (soundOn) {
-      video.play().catch(()=>{});
+      audio.play().catch(()=>{});
       soundBtn.textContent = '🔊';
     } else {
+      audio.pause();
       soundBtn.textContent = '🔇';
     }
   });
+  // if bg.mp3 doesn't exist yet, don't leave the button in a broken state
+  audio.addEventListener('error', () => {
+    soundBtn.style.opacity = '0.4';
+    soundBtn.title = 'No bg.mp3 found yet';
+  }, true);
 
   // ---- countdown: EDIT THIS DATE to your real launch date ----
   const LAUNCH = new Date("2026-09-01T00:00:00+08:00").getTime();
